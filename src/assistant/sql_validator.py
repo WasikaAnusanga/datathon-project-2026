@@ -30,8 +30,9 @@ class SQLGlotValidator:
         "COUNT", "SUM", "AVG", "MIN", "MAX",
         "ROUND", "COALESCE", "ABS", "DATE_TRUNC",
         "EXTRACT", "MONTH", "YEAR", "DAY", "HOUR",
-        "CAST", "CASE", "IFNULL"
+        "CAST", "CASE", "IFNULL", "AND", "OR", "NOT"
     }
+
 
     PROHIBITED_NODES = (
         exp.Insert,

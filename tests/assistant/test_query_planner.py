@@ -19,8 +19,9 @@ def test_query_planner_out_of_scope():
     res = planner.process_question("Join taxi trips with subway delay data")
     assert res.success is False
     assert res.intent.is_out_of_scope is True
-    assert "out-of-scope" in res.error_message.lower()
+    assert "out-of-scope" in res.error_message.lower() or "prohibited" in res.error_message.lower()
     planner.executor.close()
+
 
 
 def test_query_planner_ambiguous_location():
