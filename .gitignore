@@ -6,7 +6,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 .ipynb_checkpoints/
-.env
 
 
 # Data directory structure tracking (ignore contents, keep folders via .gitkeep)
@@ -33,7 +32,8 @@ models/*.onnx
 *.gz
 
 # IDE and OS
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
+config.bat
+node_modules

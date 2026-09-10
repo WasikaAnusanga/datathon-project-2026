@@ -1,0 +1,13 @@
+source_file,total_rows,negative_fares,zero_distance_nonzero_fare,zero_riders,dropoff_before_pickup,unrealistic_speed
+Urban_Flow_Analytics_Taxi_Dataset_2025-04.csv,3970553,186720,90818,23101,163,1096
+Urban_Flow_Analytics_Taxi_Dataset_2025-05.csv,4591845,325266,140346,23967,101,1270
+Urban_Flow_Analytics_Taxi_Dataset_2025-06.csv,4322960,275565,134161,22791,231,1523
+Urban_Flow_Analytics_Taxi_Dataset_2025-07.csv,3898962,247088,123319,20544,1,1046
+Urban_Flow_Analytics_Taxi_Dataset_2025-08.csv,3574091,261191,104746,17272,2,1074
+Urban_Flow_Analytics_Taxi_Dataset_2025-09.csv,4251015,252718,123958,22186,0,1218
+Urban_Flow_Analytics_Taxi_Dataset_2025-10.csv,4428699,321307,125009,22310,2,1292
+Urban_Flow_Analytics_Taxi_Dataset_2025-11.csv,4181444,395093,108786,19942,1435,1173
+Urban_Flow_Analytics_Taxi_Dataset_2025-12.csv,4305006,48175,151978,18827,2,1155
+Urban_Flow_Analytics_Taxi_Dataset_2026-01.csv,3724889,39463,125237,14787,1,874
+Urban_Flow_Analytics_Taxi_Dataset_2026-02.csv,3399866,26721,122792,12884,2,764
+Urban_Flow_Analytics_Taxi_Dataset_2026-03.csv,3952451,20724,120595,12967,2,1127
