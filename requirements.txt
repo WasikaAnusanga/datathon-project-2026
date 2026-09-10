@@ -26,3 +26,11 @@ tqdm>=4.66.0
 pyyaml>=6.0.1
 joblib>=1.3.0
 python-dotenv>=1.0.0
+
+# AI Mobility Assistant Engine & Validation
+duckdb>=1.1.0
+sqlglot>=25.0.0
+pydantic>=2.7.0
+rapidfuzz>=3.8.0
+pytest>=8.0.0
+
