@@ -1,0 +1,26 @@
+borough_name,daypart,trip_count,avg_driver_earnings,avg_duration_min,avg_distance_miles,avg_speed_mph,hourly_velocity,per_mile_yield
+Bronx,Overnight,2218,27.27,22.2,161.38,339.2,86.58,5.54
+Bronx,Late Night,5540,23.64,18.1,20.53,45.0,83.47,6.25
+Bronx,Morning Rush,8794,29.41,29.7,75.99,151.6,70.55,5.63
+Bronx,Evening Rush,3021,27.63,27.7,5.96,12.8,70.17,119.03
+Bronx,Midday,7328,27.37,29.0,121.41,373.9,67.42,7.4
+Brooklyn,Overnight,10811,26.62,19.9,20.84,37.1,87.84,6.61
+Brooklyn,Late Night,30049,25.26,20.1,15.45,65.4,81.18,7.3
+Brooklyn,Morning Rush,23598,28.94,28.7,63.76,176.8,71.14,7.23
+Brooklyn,Evening Rush,13563,26.48,25.9,4.46,10.1,70.95,153.22
+Brooklyn,Midday,27623,26.97,28.3,16.29,36.3,67.71,9.35
+Manhattan,Overnight,101998,19.92,12.1,9.64,64.9,103.42,8.61
+Manhattan,Morning Rush,397032,18.35,13.1,6.09,23.7,90.97,9.64
+Manhattan,Late Night,837233,17.96,13.1,4.07,17.5,89.29,9.29
+Manhattan,Evening Rush,832402,18.4,14.5,4.16,16.9,84.7,26.79
+Manhattan,Midday,1026170,19.27,15.2,3.8,12.1,82.83,11.21
+Queens,Late Night,94961,55.41,26.9,15.44,35.4,127.81,5.75
+Queens,Overnight,12063,39.49,21.1,22.48,66.0,125.75,7.7
+Queens,Evening Rush,78556,63.8,40.6,14.3,27.9,106.69,19.13
+Queens,Midday,98995,59.66,39.9,19.53,48.2,103.67,6.44
+Queens,Morning Rush,39004,51.68,36.1,23.09,47.9,102.33,6.14
+Staten Island,Morning Rush,102,39.16,27.7,8.67,18.5,96.61,5.43
+Staten Island,Overnight,15,40.82,28.5,13.51,27.1,90.23,3.42
+Staten Island,Late Night,49,39.16,26.2,10.84,23.2,87.48,4.11
+Staten Island,Evening Rush,31,27.82,22.4,9.57,27.4,57.2,3.33
+Staten Island,Midday,62,18.93,18.4,7.19,24.8,54.74,2.84

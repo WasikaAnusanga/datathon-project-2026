@@ -31,7 +31,8 @@ models/*.onnx
 *.gz
 
 # IDE and OS
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
+config.bat
+node_modules
