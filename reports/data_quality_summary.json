@@ -1,0 +1,7 @@
+{
+    "raw_rows": 48601782,
+    "clean_rows": 45956110,
+    "rows_removed": 2645672,
+    "rows_removed_percentage": 5.4435699497602785,
+    "speed_threshold_mph": 80.0
+}
