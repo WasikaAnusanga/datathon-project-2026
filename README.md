@@ -91,6 +91,13 @@ python -m src.analytics.flow_clustering
 streamlit run dashboard/app.py
 ```
 
+### 5. Train the On-Time Arrival Estimator
+After running notebook `01_Exploratory_Data_.ipynb` through the cleaned/enriched Parquet output step:
+```bash
+python src/models/train_arrival_pipeline.py
+```
+The leakage-safe model is saved to `models/arrival_time_estimator.pkl` and predicts trip duration in minutes plus an estimated arrival timestamp. It assumes the destination is entered before the estimate request and does not use actual completed-trip distance or speed.
+
 ---
 
 ## 🔬 System Overview & Completed Components
