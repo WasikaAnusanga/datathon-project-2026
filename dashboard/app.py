@@ -339,6 +339,222 @@ def render_clustering_tab(zone_df, clusters_df, od_df, metrics):
             - **Outer-Borough Transit Feeder Integration:** In *Residential Morning Outflow Hubs*, provide subsidized flat-rate feeder trips to express subway terminals during the 06:00-09:00 AM commute peak.
             """)
 
+@st.cache_data
+def load_business_data():
+    pay_path = "reports/payment_tip_summary.csv"
+    velocity_path = "reports/revenue_velocity.csv"
+    deadhead_path = "reports/deadhead_corridors.csv"
+    kpi_path = "reports/business_kpis.json"
+
+    if not (os.path.exists(pay_path) and os.path.exists(velocity_path)):
+        from src.analytics.business_analytics import run_business_analytics_pipeline
+        run_business_analytics_pipeline()
+
+    pay_df = pd.read_csv(pay_path)
+    velocity_df = pd.read_csv(velocity_path)
+    deadhead_df = pd.read_csv(deadhead_path)
+
+    kpis = {}
+    if os.path.exists(kpi_path):
+        import json
+        with open(kpi_path, 'r', encoding='utf-8') as f:
+            kpis = json.load(f)
+
+    return pay_df, velocity_df, deadhead_df, kpis
+
+def render_business_decision_tab(pay_df, velocity_df, deadhead_df, kpis):
+    import plotly.express as px
+    import plotly.graph_objects as go
+    from src.analytics.business_analytics import BusinessDecisionEngine
+
+    st.header("💼 Executive Business Intelligence & Decision Engine")
+    st.caption("Track 6 — Turning Taxi Telematics, Payment Behavior & Revenue Velocity into Strategic Value")
+
+    # The 4-Phase Executive Story Banner
+    with st.expander("📖 Executive Data-Driven Story: The Fleet Revenue Optimization Framework", expanded=True):
+        col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+        with col_s1:
+            st.error("**1. What is the Problem?**\n- Driver hourly earnings compress by 35% in daytime gridlock.\n- 10.4% cash trips record zero digital tips.\n- Outer-borough dropoffs suffer up to 99.9% empty return deadheading.")
+        with col_s2:
+            st.info("**2. What Does the Data Say?**\n- Queens expressways yield $127/hr vs Manhattan midday at $82/hr.\n- Cards yield $4.30 tip (26.5%) vs Cash $0.00.\n- Surcharges & taxes take 13.2% of passenger charge.")
+        with col_s3:
+            st.warning("**3. Why is it Happening?**\n- Stop-and-go congestion drops speed to <8 mph.\n- Terminal UI lacks smart tip presets.\n- Outbound commuter flows lack return demand matching.")
+        with col_s4:
+            st.success("**4. What Should We Do?**\n- Smart In-Cab POS Tipping Presets (+2.5% tip lift).\n- Dynamic Outer-Borough Return Incentives.\n- Reposition drivers to high-velocity corridors.")
+
+    # Top Executive KPI Cards
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+    with kpi1:
+        st.metric("Peak Revenue Velocity", "$127.81 / hr", delta="Queens Arterials", help="Highest gross driver hourly earning rate across NYC")
+    with kpi2:
+        st.metric("Congestion Drag Rate", "$82.83 / hr", delta="-35.2% vs Peak", delta_color="inverse", help="Depressed driver earning rate in Manhattan midday gridlock")
+    with kpi3:
+        st.metric("Digital Tip Capture Rate", "93.75%", delta="26.5% on Base Fare", help="Percentage of credit card rides leaving a digital tip")
+    with kpi4:
+        st.metric("Non-Fare Surcharge Share", "13.23%", delta="1 in 7 Dollars", delta_color="inverse", help="Share of passenger spend absorbed by taxes, congestion, and airport fees")
+
+    st.write("---")
+
+    tab_roi, tab_velocity, tab_payment, tab_deadhead = st.tabs([
+        "🎛️ Interactive ROI Scenario Simulator",
+        "⚡ Hourly Revenue Velocity ($/Hour)",
+        "💳 Payment Disparity & Fee Decomposition",
+        "🔄 Deadhead Corridor Risk Matrix"
+    ])
+
+    # -------------------------------------------------------------------------
+    # TAB A: Interactive What-If ROI Simulator
+    # -------------------------------------------------------------------------
+    with tab_roi:
+        st.subheader("Dynamic Operational ROI & Value Creation Simulator")
+        st.write("Adjust operational levers below to forecast annual financial impact across the fleet (~13,500 active drivers and ~46M clean annual trips).")
+
+        sim_col1, sim_col2 = st.columns([1, 1])
+        with sim_col1:
+            st.markdown("#### ⚙️ Operational Levers")
+            tip_lift = st.slider("Digital Tip UI Optimization Lift (%)", min_value=0.5, max_value=5.0, value=2.5, step=0.5,
+                                 help="Expected percentage point increase in tips from 20%/25%/30% POS terminal presets")
+            cash_conv = st.slider("Cash-to-Digital Conversion Rate (%)", min_value=5.0, max_value=50.0, value=25.0, step=5.0,
+                                  help="Share of cash passengers converted to digital payment profiles")
+            deadhead_red = st.slider("Deadhead Cruising Reduction (%)", min_value=10.0, max_value=60.0, value=30.0, step=5.0,
+                                     help="Reduction in empty cruising miles from dynamic outer-borough staging incentives")
+            cost_per_mile = st.number_input("Driver Operating Cost per Mile ($)", min_value=0.40, max_value=1.20, value=0.65, step=0.05)
+
+        # Run dynamic simulation
+        sim_res = BusinessDecisionEngine.simulate_roi_scenarios(
+            tip_lift_pct=tip_lift,
+            cash_to_digital_pct=cash_conv,
+            deadhead_reduction_pct=deadhead_red,
+            cost_per_mile=cost_per_mile
+        )
+
+        with sim_col2:
+            st.markdown("#### 📈 Projected Financial Returns")
+            st.metric("Total Driver Take-Home Pay Lift", f"${sim_res['total_driver_earnings_boost']:,.2f}",
+                      delta=f"+${sim_res['per_driver_annual_benefit']:,.2f} / driver annually")
+            st.metric("Annual Fuel & Cruising Cost Savings", f"${sim_res['deadhead_fuel_cost_savings']:,.2f}",
+                      delta=f"{sim_res['deadhead_miles_saved']:,.0f} empty miles saved")
+            st.metric("Platform Processing Fee Gain (2.5%)", f"${sim_res['company_platform_ebitda_boost']:,.2f}",
+                      help="Incremental gross profit for platform technology operator")
+
+        # Waterfall Value Creation Chart
+        wf_labels = ['Tip Preset UI Lift', 'Cash-to-Digital', 'Deadhead Savings', 'Total Driver Boost']
+        wf_values = [
+            sim_res['tip_lift_driver_gain'] / 1e6,
+            sim_res['cash_conversion_tip_gain'] / 1e6,
+            sim_res['deadhead_fuel_cost_savings'] / 1e6,
+            sim_res['total_driver_earnings_boost'] / 1e6
+        ]
+        fig_wf = px.bar(
+            x=wf_labels, y=wf_values,
+            color=wf_labels,
+            color_discrete_sequence=['#2ca02c', '#17becf', '#ff7f0e', '#1f77b4'],
+            labels={'x': 'Value Creation Lever', 'y': 'Annual Benefit ($ Millions)'},
+            title=f"Projected Annual Value Creation: +${sim_res['total_driver_earnings_boost']/1e6:.2f} Million Total Benefit"
+        )
+        fig_wf.update_layout(showlegend=False, height=380)
+        st.plotly_chart(fig_wf, use_container_width=True)
+
+    # -------------------------------------------------------------------------
+    # TAB B: Hourly Revenue Velocity ($/Hour)
+    # -------------------------------------------------------------------------
+    with tab_velocity:
+        st.subheader("Driver Revenue Velocity ($/Hour) by Borough & Diurnal Daypart")
+        st.write("Tracking gross driver earnings per hour of trip duration. Congestion during Midday in Manhattan dramatically depresses hourly yield compared to outer borough highways.")
+
+        pivot_v = velocity_df.pivot(index='borough_name', columns='daypart', values='hourly_velocity')
+        daypart_order = ["Morning Rush", "Midday", "Evening Rush", "Late Night", "Overnight"]
+        valid_cols = [c for c in daypart_order if c in pivot_v.columns]
+        pivot_v = pivot_v[valid_cols]
+
+        fig_heat = px.imshow(
+            pivot_v,
+            labels=dict(x="Diurnal Daypart", y="Origin Borough", color="Hourly Velocity ($/Hr)"),
+            x=valid_cols,
+            y=pivot_v.index.tolist(),
+            color_continuous_scale="Viridis",
+            text_auto=".1f",
+            aspect="auto"
+        )
+        fig_heat.update_layout(height=420)
+        st.plotly_chart(fig_heat, use_container_width=True)
+
+        st.subheader("Detailed Revenue Velocity Matrix")
+        st.dataframe(
+            velocity_df[['borough_name', 'daypart', 'trip_count', 'hourly_velocity', 'avg_speed_mph', 'per_mile_yield', 'avg_duration_min']].sort_values('hourly_velocity', ascending=False),
+            use_container_width=True,
+            hide_index=True
+        )
+
+    # -------------------------------------------------------------------------
+    # TAB C: Payment Disparity & Fee Decomposition
+    # -------------------------------------------------------------------------
+    with tab_payment:
+        st.subheader("Payment Method Disparity & Passenger Fare Decomposition")
+        col_pay1, col_pay2 = st.columns(2)
+
+        with col_pay1:
+            st.markdown("#### Effective Tip % by Settlement Method")
+            fig_pay = px.bar(
+                pay_df.head(4),
+                x='payment_label', y='effective_tip_pct',
+                color='payment_label',
+                labels={'payment_label': 'Payment Method', 'effective_tip_pct': 'Effective Tip % on Base Fare'},
+                color_discrete_sequence=['#1f77b4', '#2ca02c', '#d62728', '#ff7f0e']
+            )
+            fig_pay.update_layout(showlegend=False, height=360)
+            st.plotly_chart(fig_pay, use_container_width=True)
+            st.caption("Credit card rides average **26.5% tips** with 93.8% compliance, while cash rides record **0.00% system tips**.")
+
+        with col_pay2:
+            st.markdown("#### Passenger Spend Decomposition (%)")
+            fee_info = kpis.get("fee_decomposition", {})
+            labels = ['Driver Base Fare', 'Driver Tips', 'Non-Fare Surcharges & Taxes', 'Tolls']
+            values = [
+                fee_info.get('base_fare_share_pct', 68.55),
+                fee_info.get('tip_share_pct', 11.03),
+                fee_info.get('surcharges_share_pct', 13.23),
+                fee_info.get('toll_share_pct', 1.84)
+            ]
+            fig_pie = px.pie(
+                names=labels, values=values,
+                hole=0.45,
+                color_discrete_sequence=['#1f77b4', '#2ca02c', '#d62728', '#ff7f0e']
+            )
+            fig_pie.update_layout(height=360, margin=dict(l=20, r=20, t=20, b=20))
+            st.plotly_chart(fig_pie, use_container_width=True)
+            st.caption("Over **13.2% of customer gross spend** goes to MTA taxes, improvement surcharges, and congestion relief fees.")
+
+    # -------------------------------------------------------------------------
+    # TAB D: Deadhead Corridor Risk Matrix
+    # -------------------------------------------------------------------------
+    with tab_deadhead:
+        st.subheader("The Deadhead Trap: Outbound vs Inbound Return Asymmetry")
+        st.write("Quantifying empty cruising after dropping passengers in outer boroughs. High asymmetry ratios indicate severe uncompensated return travel.")
+
+        clean_dh = deadhead_df[deadhead_df['dest_boro'].isin(['Queens', 'Brooklyn', 'Bronx', 'EWR', 'Staten Island'])].copy()
+
+        fig_dh = go.Figure()
+        fig_dh.add_trace(go.Bar(
+            x=clean_dh['dest_boro'], y=clean_dh['outbound_volume'],
+            name='Outbound from Manhattan', marker_color='#1f77b4'
+        ))
+        fig_dh.add_trace(go.Bar(
+            x=clean_dh['dest_boro'], y=clean_dh['return_volume'],
+            name='Inbound Return to Manhattan', marker_color='#ff7f0e'
+        ))
+        fig_dh.update_layout(barmode='group', height=400, yaxis_title="Monthly Trip Volume",
+                             title="Outbound Trips vs Return Inflow from Outer Boroughs")
+        st.plotly_chart(fig_dh, use_container_width=True)
+
+        st.subheader("Corridor Deadhead Exposure Table")
+        st.dataframe(
+            clean_dh[['dest_boro', 'outbound_volume', 'return_volume', 'asymmetry_ratio', 'estimated_deadhead_pct', 'avg_fare', 'avg_distance']],
+            use_container_width=True,
+            hide_index=True
+        )
+        st.info("💡 **Key Finding:** Manhattan ➔ Brooklyn experiences a **59.9% deadhead rate** (>43,000 empty returns/month), while Newark Airport (EWR) experiences a **99.9% deadhead rate** due to interstate TLC licensing restrictions.")
+
 def main():
     st.sidebar.title("🚕 DataCraft UrbanFlow")
     st.sidebar.markdown("**Datathon 2026**")
@@ -348,6 +564,7 @@ def main():
         [
             "🚕 Upfront Base Fare Estimator",
             "🗺️ Hotspot & OD Flow Clustering (Section 3.2)",
+            "💼 Executive Decision Engine (Track 6)",
             "⏱️ ETA & Trip Duration (Teammate)",
             "📈 Demand Forecasting (Teammate)",
             "📊 Executive Overview & Quality"
@@ -362,6 +579,9 @@ def main():
     elif navigation == "🗺️ Hotspot & OD Flow Clustering (Section 3.2)":
         clusters_df, od_df, metrics = load_clustering_data()
         render_clustering_tab(zone_df, clusters_df, od_df, metrics)
+    elif navigation == "💼 Executive Decision Engine (Track 6)":
+        pay_df, velocity_df, deadhead_df, kpis = load_business_data()
+        render_business_decision_tab(pay_df, velocity_df, deadhead_df, kpis)
     elif navigation == "⏱️ ETA & Trip Duration (Teammate)":
         st.header("⏱️ ETA & Trip Duration Modeling")
         st.info("Teammate component: Predicts expected trip duration (minutes) using pre-trip route features.")
@@ -376,7 +596,9 @@ def main():
         st.write("- **Anomalies Dropped**: 2,643,729 rows (5.44%)")
         st.write("- **Section 2.1 Upfront Base Fare Model**: LightGBM Pipeline (Test MAE: $4.60, R²: 0.68)")
         st.write("- **Section 3.2 Hotspot & Flow Clustering**: 5 Diurnal Mobility Archetypes (Silhouette: 0.2819)")
+        st.write("- **Track 6 Executive Decision Engine**: +$25.97M Annual Value Simulator & Deadhead Optimization")
 
 if __name__ == "__main__":
     main()
+
 
