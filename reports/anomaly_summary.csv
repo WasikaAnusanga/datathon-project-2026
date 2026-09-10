@@ -1,0 +1,6 @@
+Anomaly,Affected Rows,Decision,Impute,Percentage of Raw Rows
+Negative base fare,2400031,Exclude from normal fare-prediction dataset,No,4.938154325287908
+Zero distance + non-zero fare,1471745,Retain globally; filter from movement/speed analysis,No,3.028170860072579
+Zero rider count,231578,Filter from passenger-count-dependent analysis,No,0.47648047143621197
+Drop-off before pickup,1942,Drop from cleaned modelling dataset,No,0.003995738263259566
+Unrealistic speed,13612,Filter from movement/travel-time analysis,No,0.028007203521879097

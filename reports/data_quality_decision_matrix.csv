@@ -1,0 +1,6 @@
+Anomaly,Detection,Treatment,Justification
+Negative base fare,base_fare < 0,Drop/filter for fare prediction,Negative fare is not a missing value and should not be replaced by an invented target.
+Zero distance + non-zero fare,distance_miles == 0 AND base_fare != 0,Task-specific filter,"Zero distance does not prove the fare is invalid, but it cannot support meaningful movement/speed analysis."
+Zero rider count,rider_count == 0,Filter,The actual rider count cannot be reliably reconstructed from the available fields.
+Drop-off before pickup,dropoff_timestamp < pickup_timestamp,Drop,The temporal sequence is impossible and the correct timestamp cannot be inferred.
+Unrealistic speed,speed_mph > 80.0,Task-specific filter,The derived speed is operationally implausible; imputation would hide the underlying inconsistency.
