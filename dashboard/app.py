@@ -48,6 +48,15 @@ def load_fare_pipeline():
             return None
     return None
 
+def get_query_planner():
+    import importlib
+    import src.assistant.llm_client
+    import src.assistant.query_planner
+    importlib.reload(src.assistant.llm_client)
+    importlib.reload(src.assistant.query_planner)
+    from src.assistant.query_planner import QueryPlanner
+    return QueryPlanner(use_sample=False)
+
 def render_fare_prediction_tab(zone_df, pipeline):
     st.header("🚕 No-Surprises Upfront Pricing Calculator")
     st.caption("Section 2.1 — Base Fare Prediction before trip start (Zero Post-Trip Leakage)")
@@ -126,6 +135,92 @@ def render_fare_prediction_tab(zone_df, pipeline):
             st.write(f"- **Airport Trip**: {'Yes ✈️' if is_airport else 'No 🚗'}")
             st.write(f"- **Pickup Hour**: {pickup_dt.hour}:00 ({'Peak Rush Hour 🚦' if (pickup_dt.weekday() < 5 and (7 <= pickup_dt.hour <= 10 or 16 <= pickup_dt.hour <= 20)) else 'Off-Peak 🟢'})")
             st.write(f"- **Day of Week**: {pickup_dt.strftime('%A')}")
+
+def render_ai_assistant_tab():
+    st.header("🤖 AI Mobility Assistant (Track 5)")
+    st.caption("Natural Language Text-to-SQL Analytics over 45.95M urban taxi records powered by DuckDB & SQLGlot")
+    
+    from src.assistant.response_builder import ResponseBuilder
+    from src.assistant.chart_builder import ChartBuilder
+    from src.assistant.audit_logger import AuditLogger
+    
+    planner = get_query_planner()
+    logger = AuditLogger()
+
+    # Session State management for text input
+    if "user_query_text_box" not in st.session_state:
+        st.session_state["user_query_text_box"] = ""
+
+    st.markdown("#### 💡 Quick Sample Questions")
+    col_q1, col_q2, col_q3, col_q4, col_q5 = st.columns(5)
+    
+    if col_q1.button("🏙️ Top Busiest Boroughs"):
+        st.session_state["user_query_text_box"] = "What are the top 5 busiest pickup boroughs?"
+    if col_q2.button("💵 Avg Fare Manhattan"):
+        st.session_state["user_query_text_box"] = "What is the average trip fare in Manhattan?"
+    if col_q3.button("⏱️ Hourly Speed Profile"):
+        st.session_state["user_query_text_box"] = "Show me hourly speed distribution for taxi trips"
+    if col_q4.button("❓ Ambiguous: Midtown"):
+        st.session_state["user_query_text_box"] = "What is the average fare in Midtown?"
+    if col_q5.button("⛔ Out-of-Scope: Weather"):
+        st.session_state["user_query_text_box"] = "Join taxi trips with weather data"
+
+    query_input = st.text_input(
+        "Ask any natural language analytical question about NYC taxi trips:",
+        placeholder="e.g. What are the top 5 busiest pickup boroughs?",
+        key="user_query_text_box"
+    )
+
+    if hasattr(planner.llm_client, "check_api_key_status"):
+        key_status = planner.llm_client.check_api_key_status()
+        if not key_status.get("valid_format", True):
+            st.info(f"ℹ️ **Engine Status**: {key_status['message']}")
+
+
+    if query_input:
+        with st.spinner("Processing question & compiling SQL..."):
+            res = planner.process_question(query_input)
+
+            # Audit log metadata
+            logger.log_query_execution(
+                question=query_input,
+                intent_category=res.intent.intent_category.value if res.intent else "unknown",
+                generated_sql=res.sql,
+                validation_status="VALID" if res.success else "REJECTED",
+                clarification_status=bool(res.clarification_prompt),
+                execution_time_ms=res.meta.get("execution_time_ms", 0.0),
+                returned_row_count=len(res.data),
+                error_category=res.error_message if not res.success else None
+            )
+
+        if res.clarification_prompt:
+            st.warning(f"❓ **Clarification Required**: {res.clarification_prompt}")
+        elif not res.success:
+            st.error(f"⛔ **Query Rejected / Out of Scope**: {res.error_message}")
+        else:
+            st.success("✅ Query compiled & executed safely!")
+            
+            # Grounded response answer
+            grounded_answer = ResponseBuilder.build_response(query_input, res.data, res.meta)
+            st.markdown(f"### 💬 Analytical Answer\n{grounded_answer}")
+
+            # SQL expander view
+            with st.expander("🔍 View Deterministic SQL & Execution Metrics", expanded=True):
+                st.code(res.sql, language="sql")
+                st.write(f"- **Execution Time**: `{res.meta.get('execution_time_ms', 0):.2f} ms` over 45,956,110 rows")
+                st.write(f"- **Returned Rows**: `{len(res.data)}` (capped at {planner.executor.HARD_MAX_RESULT_ROWS})")
+
+            # Visual plot
+            fig = ChartBuilder.generate_chart(res.data, query_input)
+            if fig is not None:
+                st.subheader("📊 Visualization")
+                st.plotly_chart(fig, use_container_width=True)
+
+            # Data Table preview
+            st.subheader("📋 Query Results Table")
+            st.dataframe(res.data, use_container_width=True)
+
+    planner.executor.close()
 
 @st.cache_data
 def load_clustering_data():
@@ -336,7 +431,6 @@ def render_clustering_tab(zone_df, clusters_df, od_df, metrics):
             - **Curb Space & Dedicated Taxi Staging:** In *Core Commercial & Morning Inflow Hubs*, convert curbside parking into designated 15-minute taxi passenger loading bays between 15:30 and 19:30 to mitigate traffic bottlenecks.
             - **Nightlife Fleet Repositioning:** Direct off-duty drivers to *Evening Dining & Nightlife Corridors* (East Village, Chelsea, SoHo) where post-22:00 demand spikes exceed midday levels.
             - **Airport Queue Coordination:** Implement virtual staging queues at *Intermodal Airport Hubs* matching arriving flights with passenger departures to eliminate empty deadhead trips across East River crossings.
-            - **Outer-Borough Transit Feeder Integration:** In *Residential Morning Outflow Hubs*, provide subsidized flat-rate feeder trips to express subway terminals during the 06:00-09:00 AM commute peak.
             """)
 
 def main():
@@ -346,6 +440,7 @@ def main():
     navigation = st.sidebar.radio(
         "Platform Modules",
         [
+            "🤖 AI Mobility Assistant",
             "🚕 Upfront Base Fare Estimator",
             "🗺️ Hotspot & OD Flow Clustering (Section 3.2)",
             "⏱️ ETA & Trip Duration (Teammate)",
@@ -357,7 +452,9 @@ def main():
     zone_df = load_zone_data()
     pipeline = load_fare_pipeline()
     
-    if navigation == "🚕 Upfront Base Fare Estimator":
+    if navigation == "🤖 AI Mobility Assistant":
+        render_ai_assistant_tab()
+    elif navigation == "🚕 Upfront Base Fare Estimator":
         render_fare_prediction_tab(zone_df, pipeline)
     elif navigation == "🗺️ Hotspot & OD Flow Clustering (Section 3.2)":
         clusters_df, od_df, metrics = load_clustering_data()

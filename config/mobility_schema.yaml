@@ -1,0 +1,255 @@
+dataset_metadata:
+  table_name: "taxi_trips"
+  data_path: "data/processed/Urban_Flow_Analytics_Taxi_Clean_Enriched_12Month.parquet"
+  sample_fixture_path: "tests/fixtures/taxi_sample.parquet"
+  total_rows: 45956110
+  dataset_min_date: "2025-04-01"
+  dataset_max_date: "2026-03-31"
+  available_years: [2025, 2026]
+  available_months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+date_policy:
+  default_anchor_date: "2026-03-31"
+  description: "Relative temporal expressions (e.g. 'last month', 'this year', 'December') are anchored against the dataset's date range [2025-04-01 to 2026-03-31]."
+
+columns:
+  provider_code:
+    type: "INTEGER"
+    description: "Taxi vendor / provider ID code"
+    synonyms: ["provider", "vendor", "vendor_id", "provider_id"]
+  pickup_timestamp:
+    type: "TIMESTAMP"
+    description: "Date and time when the passenger was picked up"
+    synonyms: ["pickup_time", "start_time", "trip_start", "pickup_datetime"]
+  dropoff_timestamp:
+    type: "TIMESTAMP"
+    description: "Date and time when the passenger was dropped off"
+    synonyms: ["dropoff_time", "end_time", "trip_end", "dropoff_datetime"]
+  rider_count:
+    type: "FLOAT"
+    description: "Number of passengers in the vehicle"
+    synonyms: ["passenger_count", "passengers", "riders", "pax"]
+  distance_miles:
+    type: "FLOAT"
+    description: "Trip distance recorded in miles"
+    synonyms: ["trip_distance", "distance", "miles"]
+  rate_class_id:
+    type: "INTEGER"
+    description: "Final rate code in effect for the trip"
+    synonyms: ["ratecode", "rate_code", "rate_id"]
+  offline_record_flag:
+    type: "VARCHAR"
+    description: "Flag indicating whether record was held in vehicle memory before sending ('Y'/'N')"
+    synonyms: ["store_and_fwd_flag", "offline_flag"]
+  origin_loc_id:
+    type: "INTEGER"
+    description: "TLC Taxi Zone location ID for pickup"
+    synonyms: ["pu_location_id", "pickup_location_id", "origin_id"]
+  dest_loc_id:
+    type: "INTEGER"
+    description: "TLC Taxi Zone location ID for dropoff"
+    synonyms: ["do_location_id", "dropoff_location_id", "dest_id"]
+  fare_settlement_method:
+    type: "VARCHAR"
+    description: "Payment method (1=Credit card, 2=Cash, etc.)"
+    synonyms: ["payment_type", "payment_method", "pay_type"]
+  base_fare:
+    type: "FLOAT"
+    description: "Base fare amount calculated by meter in USD"
+    synonyms: ["fare_amount", "meter_fare", "base_charge"]
+  surcharge_misc:
+    type: "FLOAT"
+    description: "Miscellaneous extras and surcharges in USD"
+    synonyms: ["extra", "surcharges", "misc_charge"]
+  transit_tax:
+    type: "FLOAT"
+    description: "MTA state tax ($0.50) automatically triggered"
+    synonyms: ["mta_tax", "state_tax", "tax"]
+  driver_tip_payment:
+    type: "FLOAT"
+    description: "Tip amount paid via credit card"
+    synonyms: ["tip_amount", "tip", "tips", "driver_tip"]
+  toll_total:
+    type: "FLOAT"
+    description: "Total amount of all tolls paid in USD"
+    synonyms: ["tolls_amount", "tolls", "toll"]
+  service_improvement_fee:
+    type: "FLOAT"
+    description: "Service improvement fee ($0.30/1.00) assessed"
+    synonyms: ["improvement_surcharge", "service_fee"]
+  charge_total:
+    type: "FLOAT"
+    description: "Total amount charged to passengers in USD"
+    synonyms: ["total_amount", "total_fare", "total_charge", "cost"]
+  zone_congestion_fee:
+    type: "FLOAT"
+    description: "Congestion surcharge amount"
+    synonyms: ["congestion_surcharge", "zone_fee"]
+  Airport_fee:
+    type: "FLOAT"
+    description: "Airport pickup/dropoff fee"
+    synonyms: ["airport_surcharge", "airport_fee"]
+  congestion_relief_fee:
+    type: "FLOAT"
+    description: "Additional congestion relief fee"
+    synonyms: ["relief_fee"]
+  source_file:
+    type: "VARCHAR"
+    description: "Source CSV file filename"
+    synonyms: ["source_csv", "batch_file"]
+  flag_invalid_provider_code:
+    type: "BOOLEAN"
+    description: "Quality flag for invalid provider code"
+    synonyms: ["invalid_provider"]
+  flag_invalid_rate_class_id:
+    type: "BOOLEAN"
+    description: "Quality flag for invalid rate class ID"
+    synonyms: ["invalid_rate_class"]
+  flag_invalid_fare_settlement_method:
+    type: "BOOLEAN"
+    description: "Quality flag for invalid payment type"
+    synonyms: ["invalid_payment_type"]
+  calculated_charge_total:
+    type: "FLOAT"
+    description: "Sum of component charges recalculated"
+    synonyms: ["recalculated_total"]
+  charge_difference:
+    type: "FLOAT"
+    description: "Difference between calculated_charge_total and charge_total"
+    synonyms: ["fare_diff"]
+  flag_charge_mismatch:
+    type: "BOOLEAN"
+    description: "Quality flag for mismatch between total and breakdown"
+    synonyms: ["charge_mismatch"]
+  flag_negative_fare:
+    type: "BOOLEAN"
+    description: "Quality flag for negative fare amounts"
+    synonyms: ["negative_fare"]
+  flag_zero_distance_nonzero_fare:
+    type: "BOOLEAN"
+    description: "Quality flag for zero distance but non-zero fare"
+    synonyms: ["zero_dist_fare"]
+  flag_zero_riders:
+    type: "BOOLEAN"
+    description: "Quality flag for 0 passenger count"
+    synonyms: ["zero_passengers"]
+  flag_dropoff_before_pickup:
+    type: "BOOLEAN"
+    description: "Quality flag for negative trip duration"
+    synonyms: ["invalid_timestamps"]
+  trip_duration_seconds:
+    type: "FLOAT"
+    description: "Calculated trip duration in seconds"
+    synonyms: ["duration_sec", "trip_seconds"]
+  trip_duration_minutes:
+    type: "FLOAT"
+    description: "Calculated trip duration in minutes"
+    synonyms: ["duration_min", "trip_minutes", "duration"]
+  trip_duration_hours:
+    type: "FLOAT"
+    description: "Calculated trip duration in hours"
+    synonyms: ["duration_hrs"]
+  speed_mph:
+    type: "FLOAT"
+    description: "Calculated average speed in miles per hour"
+    synonyms: ["average_speed", "speed"]
+  flag_unrealistic_speed:
+    type: "BOOLEAN"
+    description: "Quality flag for speed > 100 mph"
+    synonyms: ["speed_anomaly"]
+  any_required_anomaly:
+    type: "BOOLEAN"
+    description: "True if trip has any data quality anomaly"
+    synonyms: ["is_anomalous", "anomaly_flag"]
+  number_of_required_anomalies:
+    type: "INTEGER"
+    description: "Count of data quality anomaly flags triggered"
+    synonyms: ["anomaly_count"]
+  origin_borough:
+    type: "VARCHAR"
+    description: "NYC Borough name for pickup location (e.g. Manhattan, Queens)"
+    synonyms: ["pickup_borough", "pu_borough", "origin_bno"]
+  origin_zone:
+    type: "VARCHAR"
+    description: "NYC Taxi Zone name for pickup location (e.g. JFK Airport, Midtown Center)"
+    synonyms: ["pickup_zone", "pu_zone", "origin_neighborhood"]
+  origin_service_zone:
+    type: "VARCHAR"
+    description: "NYC Service Zone type for pickup location (e.g. Airports, Yellow Zone)"
+    synonyms: ["pu_service_zone"]
+  dest_borough:
+    type: "VARCHAR"
+    description: "NYC Borough name for dropoff location (e.g. Brooklyn, Manhattan)"
+    synonyms: ["dropoff_borough", "do_borough", "dest_bno"]
+  dest_zone:
+    type: "VARCHAR"
+    description: "NYC Taxi Zone name for dropoff location (e.g. Times Sq/Theatre District)"
+    synonyms: ["dropoff_zone", "do_zone", "dest_neighborhood"]
+  dest_service_zone:
+    type: "VARCHAR"
+    description: "NYC Service Zone type for dropoff location"
+    synonyms: ["do_service_zone"]
+  pickup_date:
+    type: "TIMESTAMP"
+    description: "Date of pickup (YYYY-MM-DD 00:00:00)"
+    synonyms: ["date", "trip_date"]
+  pickup_hour:
+    type: "INTEGER"
+    description: "Hour of pickup (0-23)"
+    synonyms: ["hour", "hour_of_day"]
+  pickup_dayofweek:
+    type: "INTEGER"
+    description: "Day of week of pickup (0=Monday, 6=Sunday)"
+    synonyms: ["day_of_week", "weekday"]
+  pickup_month:
+    type: "INTEGER"
+    description: "Month of pickup (1-12)"
+    synonyms: ["month"]
+  is_weekend:
+    type: "INTEGER"
+    description: "Binary flag indicating Saturday or Sunday (1=Weekend, 0=Weekday)"
+    synonyms: ["weekend_flag"]
+  is_morning_rush:
+    type: "INTEGER"
+    description: "Binary flag indicating morning rush hours (7-9 AM)"
+    synonyms: ["morning_rush"]
+  is_evening_rush:
+    type: "INTEGER"
+    description: "Binary flag indicating evening rush hours (4-7 PM)"
+    synonyms: ["evening_rush"]
+  is_late_night:
+    type: "INTEGER"
+    description: "Binary flag indicating late night hours (11 PM - 5 AM)"
+    synonyms: ["late_night"]
+  sin_hour:
+    type: "FLOAT"
+    description: "Cyclical sine encoding of pickup hour"
+    synonyms: []
+  cos_hour:
+    type: "FLOAT"
+    description: "Cyclical cosine encoding of pickup hour"
+    synonyms: []
+  sin_dayofweek:
+    type: "FLOAT"
+    description: "Cyclical sine encoding of pickup day of week"
+    synonyms: []
+  cos_dayofweek:
+    type: "FLOAT"
+    description: "Cyclical cosine encoding of pickup day of week"
+    synonyms: []
+  is_cross_borough:
+    type: "INTEGER"
+    description: "Binary flag indicating pickup and dropoff are in different boroughs"
+    synonyms: ["cross_borough"]
+  is_airport_trip:
+    type: "INTEGER"
+    description: "Binary flag indicating pickup or dropoff at an airport zone"
+    synonyms: ["airport_trip"]
+  od_pair:
+    type: "INTEGER"
+    description: "Origin-Destination Location ID composite pair key"
+    synonyms: ["origin_dest_pair"]
+  od_avg_duration:
+    type: "FLOAT"
+    description: "Historical average duration for this OD pair in minutes"
+    synonyms: ["historical_avg_duration"]

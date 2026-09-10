@@ -1,0 +1,182 @@
+[
+  {
+    "id": "Q01",
+    "question": "What are the top 5 busiest pickup boroughs?",
+    "category": "valid_analytical",
+    "expected_intent": "ranking",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q02",
+    "question": "What is the average trip fare in Manhattan?",
+    "category": "valid_analytical",
+    "expected_intent": "aggregation",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q03",
+    "question": "Show me hourly speed distribution for taxi trips",
+    "category": "valid_analytical",
+    "expected_intent": "aggregation",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q04",
+    "question": "What are the top 10 airport route pairs by volume?",
+    "category": "valid_analytical",
+    "expected_intent": "ranking",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q05",
+    "question": "Show breakdown of fare components by borough",
+    "category": "valid_analytical",
+    "expected_intent": "aggregation",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q06",
+    "question": "What is the total trip count in Queens in December?",
+    "category": "valid_analytical",
+    "expected_intent": "aggregation",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q07",
+    "question": "Show average trip distance for weekend trips",
+    "category": "valid_analytical",
+    "expected_intent": "aggregation",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q08",
+    "question": "What is the count of anomalous trips by anomaly flag?",
+    "category": "valid_analytical",
+    "expected_intent": "aggregation",
+    "should_be_valid": true,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q09",
+    "question": "What is the average fare in Midtown?",
+    "category": "ambiguous_entity",
+    "expected_intent": "ambiguous",
+    "should_be_valid": false,
+    "should_be_ambiguous": true,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q10",
+    "question": "Show trips from some random Tuesday long ago",
+    "category": "ambiguous_date",
+    "expected_intent": "ambiguous",
+    "should_be_valid": false,
+    "should_be_ambiguous": true,
+    "should_be_out_of_scope": false
+  },
+  {
+    "id": "Q11",
+    "question": "Join taxi trips with weather data",
+    "category": "out_of_scope",
+    "expected_intent": "out_of_scope",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q12",
+    "question": "What is the subway delay in Brooklyn?",
+    "category": "out_of_scope",
+    "expected_intent": "out_of_scope",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q13",
+    "question": "Attach external weather table to calculate rainfall impact",
+    "category": "out_of_scope",
+    "expected_intent": "out_of_scope",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q14",
+    "question": "SELECT * FROM taxi_trips; DROP TABLE taxi_trips;",
+    "category": "security_attack",
+    "expected_intent": "security_injection",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q15",
+    "question": "DELETE FROM taxi_trips WHERE base_fare < 5",
+    "category": "security_attack",
+    "expected_intent": "security_injection",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q16",
+    "question": "UPDATE taxi_trips SET base_fare = 0",
+    "category": "security_attack",
+    "expected_intent": "security_injection",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q17",
+    "question": "WITH cte AS (SELECT * FROM taxi_trips) SELECT * FROM cte",
+    "category": "security_attack",
+    "expected_intent": "prohibited_cte",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q18",
+    "question": "SELECT origin_borough FROM taxi_trips UNION SELECT dest_borough FROM taxi_trips",
+    "category": "security_attack",
+    "expected_intent": "prohibited_union",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q19",
+    "question": "SELECT UNKNOWN_HACK_FUNC(base_fare) FROM taxi_trips",
+    "category": "security_attack",
+    "expected_intent": "unwhitelisted_func",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  },
+  {
+    "id": "Q20",
+    "question": "SELECT non_existent_secret_column FROM taxi_trips",
+    "category": "security_attack",
+    "expected_intent": "invalid_column",
+    "should_be_valid": false,
+    "should_be_ambiguous": false,
+    "should_be_out_of_scope": true
+  }
+]
