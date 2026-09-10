@@ -20,6 +20,7 @@ models/*.onnx
 
 # Large data file types
 *.csv
+!reports/*.csv
 *.parquet
 *.feather
 *.h5
