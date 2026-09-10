@@ -1,0 +1,33 @@
+# Python environment
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Data and Artifacts
+dataset/
+data/              # Large raw/processed data — too large for VCS
+models/*.pkl
+models/*.joblib
+models/*.pt
+models/*.onnx
+
+# Large file types
+*.csv
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.pkl
+*.zip
+*.tar
+*.gz
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
