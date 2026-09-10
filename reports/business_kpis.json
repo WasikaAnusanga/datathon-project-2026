@@ -1,0 +1,37 @@
+{
+    "fee_decomposition": {
+        "trip_count": 3782338,
+        "sum_base_fare": 73487832.46,
+        "sum_tips": 11826230.16,
+        "sum_tolls": 1971018.21,
+        "sum_surcharges_taxes": 14183673.0,
+        "sum_total_charge": 107207114.34,
+        "base_fare_share_pct": 68.55,
+        "tip_share_pct": 11.03,
+        "toll_share_pct": 1.84,
+        "surcharges_share_pct": 13.23
+    },
+    "roi_baseline_simulation": {
+        "annual_trips": 45950000,
+        "tip_lift_driver_gain": 16679850.0,
+        "cash_conversion_tip_gain": 4549050.0,
+        "deadhead_fuel_cost_savings": 4741764.3,
+        "deadhead_miles_saved": 7295022.0,
+        "total_driver_earnings_boost": 25970664.3,
+        "company_platform_ebitda_boost": 17248481.25,
+        "per_driver_annual_benefit": 1923.75
+    },
+    "hourly_velocity_summary": {
+        "highest_borough_velocity": {
+            "borough": "Queens",
+            "hourly_yield": 127.81,
+            "driver_context": "High-speed highway airport express arterials"
+        },
+        "lowest_borough_velocity": {
+            "borough": "Manhattan",
+            "daypart": "Midday",
+            "hourly_yield": 82.83,
+            "driver_context": "Midday gridlock congestion penalty (<8 mph)"
+        }
+    }
+}

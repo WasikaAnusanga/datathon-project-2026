@@ -1,0 +1,8 @@
+origin_boro,dest_boro,outbound_volume,return_volume,asymmetry_ratio,estimated_deadhead_pct,avg_fare,avg_distance
+Manhattan,Queens,91043,180251,0.51,-98.0,56.92,16.94
+Manhattan,Brooklyn,72106,28909,2.49,59.9,37.6,10.43
+Manhattan,Bronx,14617,10644,1.37,27.2,39.66,23.75
+Manhattan,EWR,6924,10,692.4,99.9,109.85,17.38
+Manhattan,Unknown,5311,3306,1.61,37.8,18.77,1.95
+Manhattan,N/A,4566,63,72.48,98.6,91.21,14.47
+Manhattan,Staten Island,307,45,6.82,85.3,89.61,19.41
