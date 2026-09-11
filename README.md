@@ -29,15 +29,21 @@ DataCraft_UrbanFlow/
 ├── notebooks/
 │   ├── 01_Exploratory_Data_.ipynb          # Data Quality Audit, Cleaning & Zone Enrichment
 │   ├── 03_fare_prediction.ipynb            # Section 2.1 Upfront Fare Prediction Notebook
-│   └── 06_hotspot_od_analysis.ipynb        # Section 3.2 Hotspot & OD Flow Clustering Notebook
+│   ├── 06_hotspot_od_analysis.ipynb        # Section 3.2 Hotspot & OD Flow Clustering Notebook
+│   └── 07_business_decisions.ipynb         # Track 6 Executive Business Decisions Notebook
 ├── reports/
 │   ├── zone_clusters.csv                   # Section 3.2 265 Zone Cluster Assignments
 │   ├── daypart_od_flows.csv                # Section 3.2 Daypart OD Flow Corridors
 │   ├── clustering_metrics.json             # Section 3.2 Clustering Validation Diagnostics
+│   ├── payment_tip_summary.csv             # Track 6 Payment Method & Tip Capture Summary
+│   ├── revenue_velocity.csv                # Track 6 Hourly Revenue Velocity ($/Hour) Matrix
+│   ├── deadhead_corridors.csv              # Track 6 Outer-Borough Deadhead Asymmetry Analysis
+│   ├── business_kpis.json                  # Track 6 Fee Breakdown & ROI Simulation Metrics
 │   └── data_quality_summary.json           # Data Audit Summary Metrics
 ├── src/
 │   ├── analytics/
-│   │   └── flow_clustering.py              # Section 3.2 Clustering Engine & OD Flow Aggregator
+│   │   ├── flow_clustering.py              # Section 3.2 Clustering Engine & OD Flow Aggregator
+│   │   └── business_analytics.py           # Track 6 Executive Analytics & ROI Simulator Engine
 │   ├── data/
 │   │   └── make_splits.py                  # Chronological Split Generator & Lookup Table Builder
 │   ├── features/
@@ -86,7 +92,13 @@ To extract zone behavioral vectors, run multi-algorithm clustering diagnostics, 
 python -m src.analytics.flow_clustering
 ```
 
-### 5. Launch Interactive Streamlit Dashboard
+### 5. Run Track 6 Business Decisions & ROI Engine
+To analyze revenue velocity, tip leakage, deadhead exposure, and execute the ROI simulation:
+```bash
+python -m src.analytics.business_analytics
+```
+
+### 6. Launch Interactive Streamlit Dashboard
 ```bash
 streamlit run dashboard/app.py
 ```
@@ -243,4 +255,81 @@ Standardized feature vectors were clustered using **K-Means** across $k \in [2, 
 - **`reports/daypart_od_flows.csv`**: Ranked Origin-Destination movement corridors across all 5 dayparts.
 - **`reports/clustering_metrics.json`**: Numerical validation metrics across $k=2 \dots 8$.
 - **`dashboard/app.py`**: Interactive Streamlit dashboard with a dedicated **"🗺️ Hotspot & OD Flow Clustering"** tab featuring interactive daypart filtering, top OD flow matrices, and cluster radar profiles.
+
+---
+
+## 💼 Track 6 — Turning Taxi Data into Business Decisions
+
+### Executive Problem Statement & Strategic Opportunity
+A taxi fleet generates millions of telematics, pricing, timing, and settlement records daily. However, raw data alone does not tell the business what problems exist or what actions should be taken.
+
+We identify and quantify a multi-million dollar operational challenge:  
+**"Maximizing Fleet Revenue Velocity: Eradicating the Deadhead Return Penalty, Payment Method Tip Leakage, and Congestion Drag on Driver Net Earnings."**
+
+---
+
+### The 4-Phase Executive Story Framework
+
+```text
+┌─────────────────────────┐     ┌─────────────────────────┐     ┌─────────────────────────┐     ┌─────────────────────────┐
+│  1. What is Problem?    │ ──> │  2. What Data Tells Us  │ ──> │  3. Why is it Happening?│ ──> │  4. What Should We Do?  │
+│  - Midday velocity drag │     │  - $82 vs $127/hr yield │     │  - Sub-8 mph gridlock   │     │  - Smart POS Tip UI     │
+│  - Cash tip invisibility│     │  - 26.5% CC vs 0% Cash  │     │  - Payment UI friction  │     │  - Deadhead Surcharges  │
+│  - Outer deadhead loss  │     │  - 13.2% surcharge bite │     │  - Outflow asymmetry    │     │  - Velocity Guidance    │
+└─────────────────────────┘     └─────────────────────────┘     └─────────────────────────┘     └─────────────────────────┘
+```
+
+#### 1. What is the Problem?
+Fleet profitability and driver retention are threatened by three structural revenue drains:
+1. **The Congestion Velocity Trap:** Total fare masks depressed hourly earning rates in dense stop-and-go zones.
+2. **The Cash Tip Desert:** 10.4% of rides settled in cash record zero system tips, eliminating digital transparency.
+3. **The Outer-Borough Deadhead Trap:** Drivers dropping passengers in outer boroughs face up to a 99.9% probability of returning empty, burning uncompensated fuel and time.
+
+#### 2. What Does the Data Tell Us?
+- **Hourly Revenue Velocity ($/Hour):** Gross driver earning velocity drops to **$82.83/hour in Manhattan midday**, compared to **$127.81/hour on Queens highway/airport arterials**—a **35.2% congestion penalty**.
+- **Payment Tip Disparity:** Credit Card rides average **$4.30 in tips (26.52% on base fare)** with a **93.75% tip frequency**, whereas Cash rides record **$0.00 in system tips (0.01% tip frequency)**.
+- **Passenger Fare Decomposition:** Customer gross spend consists of:
+  - **Base Fare:** 68.55%
+  - **Driver Tips:** 11.03%
+  - **Tolls:** 1.84%
+  - **Non-Fare Surcharges & Taxes:** 13.23% (MTA taxes, improvement fee, congestion relief fee). Nearly 1 out of 7 passenger dollars is absorbed by fees without reaching driver pockets.
+- **Deadhead Return Asymmetry:**
+  - **Manhattan ➔ Brooklyn:** 72,106 outbound vs 28,909 return rides (**59.9% deadhead rate**; >43,000 empty returns).
+  - **Manhattan ➔ Staten Island:** 307 outbound vs 45 return rides (**85.3% deadhead rate**).
+  - **Manhattan ➔ Newark Airport (EWR):** 6,924 outbound vs 10 return rides (**99.9% deadhead rate** due to interstate TLC licensing restrictions).
+
+#### 3. Why is it Happening?
+- **Traffic Gridlock:** Midday Manhattan speeds plunge below 8 mph, locking cabs into unpaid idling.
+- **Static POS Interface:** Payment terminals historically lacked prominent, pre-selected tip percentage buttons.
+- **Tidal Spatial Imbalance:** Evening commuters travel outward from Midtown to residential outer boroughs; without return passenger matching, drivers deadhead back to Manhattan.
+
+#### 4. What Should the Business Do About It? (Actionable Playbook)
+
+| Strategic Initiative | Operational Action | Projected Financial & Operational Impact |
+| :--- | :--- | :---: |
+| **1. Smart POS Tipping UI Optimization** | Calibrate in-cab terminal UI with default prompts: 20%, 25%, 30% buttons | **+$16.68M Annual Driver Earnings** (+2.5% tip lift) |
+| **2. Dynamic Outer-Borough Return Incentives** | Offer discounted return rides or staging credits near Section 3.2 residential clusters | **-$4.74M Fuel/Wear Savings** (7.3M deadhead miles saved) |
+| **3. Cash-to-Digital Passenger Onboarding** | Promote in-app digital wallet profiles converting 25% of cash passengers | **+$4.55M Captured Tip Revenue** |
+| **4. Real-Time Revenue Velocity Heatmaps** | Guide drivers to high-velocity corridors ($115+/hr) avoiding gridlocked zones | **+8% to 12% Overall Fleet Productivity** |
+| **TOTAL FLEET VALUE CREATED** | **Combined Strategy across all 13,500 active NYC drivers** | **+$25.97 Million / Year ($1,923 / Driver)** |
+
+---
+
+### Interactive Management Dashboard (`dashboard/app.py`)
+Includes a dedicated **"💼 Executive Decision Engine (Track 6)"** tab featuring:
+- **What-If ROI Scenario Simulator:** Dynamic sliders for Tip Lift %, Cash Conversion %, and Deadhead Reduction % with live dollar calculations.
+- **Hourly Revenue Velocity Heatmap:** Plotly matrix mapping $/Hour across all Boroughs and Diurnal Dayparts.
+- **Payment Disparity & Fee Decomposition:** Visual breakdowns of tip compliance and the 13.2% surcharge bite.
+- **Deadhead Corridor Risk Matrix:** Grouped bar charts tracking outbound vs inbound volume across outer boroughs.
+
+---
+
+### Track 6 Deliverables & Artifacts
+- **`notebooks/07_business_decisions.ipynb`**: Complete executable Jupyter Notebook telling the 4-phase data-driven business story with waterfall charts and empirical proofs.
+- **`src/analytics/business_analytics.py`**: Automated analytics engine executing DuckDB queries, payment breakdowns, and ROI scenario simulations.
+- **`reports/payment_tip_summary.csv`**: Granular payment method and tip compliance table.
+- **`reports/revenue_velocity.csv`**: Hourly velocity matrix by borough and daypart.
+- **`reports/deadhead_corridors.csv`**: Outer-borough asymmetry and deadhead percentage dataset.
+- **`reports/business_kpis.json`**: Key performance indicators, fee decomposition, and ROI baseline results.
+
 
