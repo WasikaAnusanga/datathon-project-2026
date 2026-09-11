@@ -1,0 +1,6 @@
+fare_settlement_method,payment_label,total_trips,avg_base_fare,avg_tip,avg_total_spend,total_tips_collected,total_gross_revenue,effective_tip_pct,tip_frequency_pct
+1,Credit Card,2686708,19.13,4.3,29.57,11547000.04,79451108.66,26.52,93.75
+0,Digital / Dispute,631269,20.78,0.44,25.47,278432.1,16078243.83,2.04,9.62
+2,Cash,394501,18.96,0.0,24.72,79.57,9752424.63,0.0,0.01
+4,Dispute,51478,22.6,0.01,28.84,619.62,1484460.56,0.08,0.11
+3,No Charge,18426,18.26,0.01,23.93,98.83,440876.66,0.13,0.43
