@@ -1,0 +1,35 @@
+{
+  "checked_on": "2026-09-11",
+  "clean_parquet": {
+    "rows": 45956110,
+    "min_timestamp": "2008-12-31 23:03:20",
+    "max_timestamp": "2026-04-01 00:06:25",
+    "outside_intended_window": 13
+  },
+  "dashboard_baseline": {
+    "history_start": "2026-02-04 00:00:00",
+    "history_end_exclusive": "2026-04-01 00:00:00",
+    "pickups": 6920063,
+    "future_7d_pickups": 865007.875,
+    "heldout_hours": 168,
+    "hourly_mae": 466.34268707483,
+    "wape": 0.0942982972731645
+  },
+  "prior_runtime_checks": {
+    "date": "2026-09-11",
+    "assistant_page_exceptions": 0,
+    "demand_page_exceptions": 0,
+    "demand_metrics_rendered": 4,
+    "two_week_filter": "passed",
+    "server_health": "ok",
+    "pip_check": "No broken requirements found"
+  },
+  "pdf": {
+    "pages": 14,
+    "preprocessing_page": 3,
+    "architecture_page": 4,
+    "bytes": 113030,
+    "text_bounds_check": "passed",
+    "required_sections_check": "passed"
+  }
+}
