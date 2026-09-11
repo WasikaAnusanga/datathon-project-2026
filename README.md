@@ -8,6 +8,8 @@
 
 ```text
 DataCraft_UrbanFlow/
+├── .env.example                            # Template environment variable configuration
+├── .env                                    # Local environment variables (GEMINI_API_KEY)
 ├── config/                                 # Configuration files & parameters
 ├── dashboard/
 │   └── app.py                              # Streamlit Interactive Web Application
@@ -59,46 +61,77 @@ DataCraft_UrbanFlow/
 
 ## 🚀 Quickstart & Setup Guide
 
-### 1. Environment Setup
+### 1. Environment Setup & Configuration
 ```bash
-# Clone repository and create virtual environment
+# 1. Clone repository and navigate to workspace
+git clone https://github.com/WasikaAnusanga/datathon-project-2026.git
+cd Datathon-2026-team-DataCraft
+
+# 2. Create Python virtual environment
 python -m venv venv
 
-# Activate virtual environment
+# 3. Activate virtual environment
 # On Windows PowerShell:
 .\venv\Scripts\Activate.ps1
 # On macOS/Linux:
 source venv/bin/activate
 
-# Install dependencies
+# 4. Install required dependencies
 pip install -r requirements.txt
+
+# 5. Create local environment file from example template
+cp .env.example .env
+# Note (Windows PowerShell alternative): Copy-Item .env.example .env
 ```
 
-### 2. Generate Chronological Data Splits & Lookup Tables
-To generate the leakage-safe train/val/test split files and historical OD route lookup dictionary:
+> [!TIP]
+> **API Key Setup**: Open `.env` and set your `GEMINI_API_KEY` to enable Gemini LLM responses in the Track 5 AI Mobility Assistant tab.
+
+---
+
+### 2. Dataset Setup & Specification
+
+The project processes a 12-month NYC Yellow Taxi trip dataset combined with NYC TLC Taxi Zone spatial metadata.
+
+| Dataset Component | File Location | Specs & Description |
+| :--- | :--- | :--- |
+| **Raw Taxi Trips (12 Months)** | `data/raw/taxi/` | • 12 monthly CSV files (`Urban_Flow_Analytics_Taxi_Dataset_2025-04.csv` to `2026-03.csv`)<br>• **~48.6 Million** raw trip records (~5.1 GB raw size). |
+| **NYC Zone Lookup** | `data/raw/zone/` | • `Urban_Flow_Analytics_Zone_Dataset.csv`<br>• Mapping file for **265 NYC TLC Taxi Location IDs**, Boroughs, Zone Names, and Service Zones. |
+| **Clean & Enriched Parquet** | `data/processed/` | • `Urban_Flow_Analytics_Taxi_Clean_Enriched_12Month.parquet`<br>• **~45.95 Million** clean & feature-enriched records (generated via `notebooks/01_Exploratory_Data_.ipynb`). |
+| **Chronological Data Splits** | `data/splits/` | Generated via `python src/data/make_splits.py` to prevent data leakage:<br>• `train.parquet` (Months 1–8: 33,373,198 rows, ~67%)<br>• `val.parquet` (Months 9–10: 13,631,488 rows, ~17%)<br>• `test.parquet` (Months 11–12: 10,485,760 rows, ~16%) |
+
+---
+
+### 3. Execution Pipeline & Initialization Steps
+
+Follow these steps in order to initialize the dataset splits, train the predictive model, run urban analytics, and launch the web app:
+
+#### Step A: Generate Chronological Data Splits & Lookup Tables
+Extracts leakage-free train/val/test split files and builds `models/historical_od_stats.joblib`:
 ```bash
 python src/data/make_splits.py
 ```
 
-### 3. Train & Evaluate Upfront Base Fare Models
-To train baselines, fit LightGBM & XGBoost regressors, compute MAE/RMSE/R² metrics, and export the submission model `.pkl`:
+#### Step B: Train & Evaluate Upfront Base Fare Models
+Trains baselines, LightGBM, and XGBoost models, computes benchmark evaluation metrics, and exports `models/fare_prediction_pipeline.pkl`:
 ```bash
 python src/models/train_pipeline.py
 ```
 
-### 4. Run Section 3.2 Hotspot & OD Flow Clustering Pipeline
-To extract zone behavioral vectors, run multi-algorithm clustering diagnostics, and generate daypart flow tables:
+#### Step C: Run Section 3.2 Hotspot & OD Flow Clustering Pipeline
+Extracts multi-dimensional zone behavioral vectors, runs K-Means clustering, and exports spatial daypart flow tables:
 ```bash
 python -m src.analytics.flow_clustering
 ```
 
-### 5. Run Track 6 Business Decisions & ROI Engine
-To analyze revenue velocity, tip leakage, deadhead exposure, and execute the ROI simulation:
+#### Step D: Run Track 6 Business Decisions & ROI Engine
+Analyzes hourly revenue velocity, tip capture disparity, outer-borough deadhead exposure, and outputs ROI scenario simulation metrics:
 ```bash
 python -m src.analytics.business_analytics
 ```
 
-### 6. Launch Interactive Streamlit Dashboard
+#### Step E: Launch Interactive Streamlit Web Application
+Starts the full interactive web application on `http://localhost:8501`:
 ```bash
 streamlit run dashboard/app.py
 ```
