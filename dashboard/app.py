@@ -48,6 +48,18 @@ def load_fare_pipeline():
             return None
     return None
 
+@st.cache_resource
+def load_arrival_estimator():
+    model_path = "models/arrival_time_estimator.pkl"
+    if not os.path.exists(model_path):
+        return None
+    from src.models.arrival_model import ArrivalEstimator
+    try:
+        return ArrivalEstimator.load(model_path)
+    except Exception as exc:
+        st.error(f"Error loading arrival estimator: {exc}")
+        return None
+
 def get_query_planner():
     import importlib
     import src.assistant.llm_client
@@ -135,6 +147,69 @@ def render_fare_prediction_tab(zone_df, pipeline):
             st.write(f"- **Airport Trip**: {'Yes ✈️' if is_airport else 'No 🚗'}")
             st.write(f"- **Pickup Hour**: {pickup_dt.hour}:00 ({'Peak Rush Hour 🚦' if (pickup_dt.weekday() < 5 and (7 <= pickup_dt.hour <= 10 or 16 <= pickup_dt.hour <= 20)) else 'Off-Peak 🟢'})")
             st.write(f"- **Day of Week**: {pickup_dt.strftime('%A')}")
+
+def render_arrival_prediction_tab(zone_df, estimator):
+    st.header("⏱️ Pre-Trip ETA Estimator")
+    st.caption("Predicts trip duration and arrival time before departure using zones, pickup timing, and training-only traffic history.")
+
+    zone_options = {
+        int(row["loc_id"]): f"{row['zone_name']} ({row['borough_name']})"
+        for _, row in zone_df.iterrows()
+    }
+    zone_ids = list(zone_options)
+    if not zone_ids:
+        st.error("No taxi zones are available.")
+        return
+
+    col_route, col_time = st.columns(2)
+    with col_route:
+        st.subheader("📍 Route")
+        origin_id = st.selectbox("Pickup zone", zone_ids, format_func=lambda value: zone_options[value], key="eta_origin_id")
+        dest_id = st.selectbox("Destination zone", zone_ids, format_func=lambda value: zone_options[value], index=min(229, len(zone_ids) - 1), key="eta_dest_id")
+        rider_count = st.slider("Passenger count", 1, 6, 1, key="eta_rider_count")
+        provider_code = st.radio("Provider code", [1, 2], horizontal=True, key="eta_provider")
+        rate_class = st.selectbox("Rate class", [1, 2, 3, 4, 5, 6], key="eta_rate_class")
+
+    with col_time:
+        st.subheader("📅 Departure")
+        pickup_date = st.date_input("Pickup date", datetime.date.today(), key="eta_date")
+        pickup_time = st.time_input("Pickup time", datetime.time(17, 30), key="eta_time")
+
+    origin_info = zone_df[zone_df["loc_id"] == origin_id].iloc[0]
+    dest_info = zone_df[zone_df["loc_id"] == dest_id].iloc[0]
+    pickup_dt = datetime.datetime.combine(pickup_date, pickup_time)
+    request = pd.DataFrame([{
+        "pickup_timestamp": pickup_dt,
+        "provider_code": provider_code,
+        "rider_count": rider_count,
+        "rate_class_id": rate_class,
+        "origin_loc_id": origin_id,
+        "dest_loc_id": dest_id,
+        "origin_borough": origin_info["borough_name"],
+        "dest_borough": dest_info["borough_name"],
+        "origin_service_zone": origin_info["service_zone"],
+        "dest_service_zone": dest_info["service_zone"],
+        "origin_zone": origin_info["zone_name"],
+        "dest_zone": dest_info["zone_name"],
+    }])
+
+    st.info(f"**Route:** {origin_info['zone_name']} ({origin_info['borough_name']}) → {dest_info['zone_name']} ({dest_info['borough_name']})")
+    if estimator is None:
+        st.warning("Arrival model artifact is not available. Train it with `src/models/train_arrival_pipeline.py`.")
+        return
+
+    predicted_minutes = float(estimator.predict_minutes(request)[0])
+    arrival_time = estimator.predict_arrival(request).iloc[0]
+    metric_col1, metric_col2, metric_col3 = st.columns(3)
+    metric_col1.metric("Predicted trip time", f"{predicted_minutes:.0f} min")
+    metric_col2.metric("Estimated arrival", arrival_time.strftime("%H:%M"))
+    metric_col3.metric("Model", "LightGBM ETA")
+    st.success("ETA generated from pre-trip information only.")
+    with st.expander("🔍 Prediction details", expanded=True):
+        st.write(f"- **Pickup:** {pickup_dt.strftime('%Y-%m-%d %H:%M')}")
+        st.write("- **Destination assumption:** entered before departure")
+        st.write("- **Training policy:** trips up to 180 minutes; extreme records retained for audit")
+        st.write("- **Features:** zones, pickup calendar, booking fields, and training-only historical OD traffic medians")
 
 def render_ai_assistant_tab():
     st.header("🤖 AI Mobility Assistant (Track 5)")
@@ -661,13 +736,14 @@ def main():
             "🗺️ Hotspot & OD Flow Clustering (Section 3.2)",
             "💼 Executive Decision Engine (Track 6)",
             "⏱️ ETA & Trip Duration (Teammate)",
-            "📈 Demand Forecasting (Teammate)",
+            "📈 Demand Forecasting",
             "📊 Executive Overview & Quality"
         ]
     )
     
     zone_df = load_zone_data()
     pipeline = load_fare_pipeline()
+    arrival_estimator = load_arrival_estimator()
     
     if navigation == "🤖 AI Mobility Assistant":
         render_ai_assistant_tab()
@@ -680,11 +756,10 @@ def main():
         pay_df, velocity_df, deadhead_df, kpis = load_business_data()
         render_business_decision_tab(pay_df, velocity_df, deadhead_df, kpis)
     elif navigation == "⏱️ ETA & Trip Duration (Teammate)":
-        st.header("⏱️ ETA & Trip Duration Modeling")
-        st.info("Teammate component: Predicts expected trip duration (minutes) using pre-trip route features.")
-    elif navigation == "📈 Demand Forecasting (Teammate)":
-        st.header("📈 Urban Demand & Spatial Hotspots")
-        st.info("Teammate component: Forecasts pickup volume and spatial demand heatmaps.")
+        render_arrival_prediction_tab(zone_df, arrival_estimator)
+    elif navigation == "📈 Demand Forecasting":
+        from dashboard.demand import render_demand_tab
+        render_demand_tab(zone_df)
     else:
         st.header("📊 Data Quality & System Overview")
         st.markdown("### Team DataCraft Pipeline Summary")
